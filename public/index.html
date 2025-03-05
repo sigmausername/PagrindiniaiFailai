@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server IP Input</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: Arial, sans-serif;
+            color: white;
+            position: relative;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        input {
+            display: block;
+            width: 80%;
+            padding: 10px;
+            margin: 10px auto;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            text-align: center;
+        }
+        button {
+            background: #ff7eb3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ff5277;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: -300px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: left 0.5s ease-in-out;
+        }
+        .notification.show {
+            left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Enter Server Details</h2>
+        <input type="text" placeholder="Server IP">
+        <input type="text" placeholder="Port">
+        <button>Connect</button>
+    </div>
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        function showNotification(message) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.classList.add("show");
+            setTimeout(() => {
+                notification.classList.remove("show");
+            }, 3000);
+        }
+
+        document.querySelector("button").addEventListener("click", async () => {
+            const ip = document.querySelector("input:nth-child(2)").value;
+            const port = document.querySelector("input:nth-child(3)").value;
+
+            if (!ip || !port) {
+                showNotification("Įveskite serverio IP ir portą!");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:3000/connect", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ip, port }),
+                });
+
+                const data = await response.json();
+                showNotification(data.message || data.error);
+            } catch (err) {
+                console.error(err);
+                showNotification("Nepavyko prisijungti prie serverio");
+            }
+        });
+    </script>
+</body>
+</html>
